@@ -45,6 +45,7 @@ export function navBarClickAndEnterHandler(event) {
   event.stopPropagation();
   if (navEl.dataset?.action === 'navigate') {
     this.scrollToEventTarget(event, false);
+    expandCollapseNavBarTag(navEl, 'toggle');
   } else if (navEl.dataset?.action === 'expand-all' || (navEl.dataset?.action === 'collapse-all')) {
     expandCollapseAll(event, navEl.dataset.action);
   } else if (navEl.dataset?.action === 'expand-collapse-tag') {
