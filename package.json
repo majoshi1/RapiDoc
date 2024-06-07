@@ -9,6 +9,9 @@
     "url": "https://github.com/majoshi1/RapiDoc.git"
   },
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "keywords": [
     "OpenAPI",
     "OpenAPI Specification",
