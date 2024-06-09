@@ -45,7 +45,7 @@ Custom Element for Open-API spec viewing
 [Check out the usage and demos](https://majoshi1.github.io/rapidocweb/)
 
 ## Examples
-[Examples and Test cases](https://rapidocweb.com/list.html)
+[Examples and Test cases](https://majoshi1.github.io/rapidocweb/list.html)
 
 
 ## Build Process
