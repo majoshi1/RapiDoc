@@ -42,10 +42,10 @@ Custom Element for Open-API spec viewing
 
 
 ## Documentation
-[Check out the usage and demos](https://rapi-doc.github.io/RapiDoc/)
+[Check out the usage and demos](https://majoshi1.github.io/rapidocweb/)
 
 ## Examples
-[Examples and Test cases](https://rapi-doc.github.io/RapiDoc/list.html)
+[Examples and Test cases](https://rapidocweb.com/list.html)
 
 
 ## Build Process
