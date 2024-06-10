@@ -43,7 +43,6 @@ export function navBarClickAndEnterHandler(event) {
   }
   const navEl = event.target;
   event.stopPropagation();
-  debugger;
   if (navEl.dataset?.action === 'navigate') {
     this.scrollToEventTarget(event, false);
     const tagAndPathEl = navEl?.closest('.nav-bar-tag-and-paths');
