@@ -105,7 +105,7 @@ async function fetchAccessToken(tokenUrl, clientId, clientSecret, redirectUrl, g
   }
   if (sendClientSecretIn === 'header') {
     headers.set('Authorization', `Basic ${Buffer.from(`${clientId}:${clientSecret}`, 'utf8').toString('base64')}`);
-  } else if (grantType !== 'authorization_code') {
+  } else {
     urlFormParams.append('client_id', clientId);
     urlFormParams.append('client_secret', clientSecret);
   }
@@ -256,7 +256,7 @@ async function onInvokeOAuthFlow(securitySchemeId, flowType, authUrl, tokenUrl, 
 
 /* eslint-disable indent */
 
-function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, authFlow, defaultScopes = [], receiveTokenIn = 'header', receiveTokenInOptions = undefined) {
+function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, authFlow, defaultScopes = [], receiveTokenIn = 'header') {
   let { authorizationUrl, tokenUrl, refreshUrl } = authFlow;
   const pkceOnly = authFlow['x-pkce-only'] || false;
   const isUrlAbsolute = (url) => (url.indexOf('://') > 0 || url.indexOf('//') === 0);
@@ -350,8 +350,8 @@ function oAuthFlowTemplate(flowName, clientId, clientSecret, securitySchemeId, a
                   style = "margin:0 5px;${pkceOnly ? 'display:none;' : ''}"
                 >
                 <select style="margin-right:5px;${pkceOnly ? 'display:none;' : ''}" class="${flowName} ${securitySchemeId} oauth-send-client-secret-in">
-                   ${(!receiveTokenInOptions || receiveTokenInOptions.includes('header')) ? html`<option value = 'header' .selected = ${receiveTokenIn === 'header'} > Authorization Header </option>` : ''}
-                   ${(!receiveTokenInOptions || receiveTokenInOptions.includes('request-body')) ? html` <option value = 'request-body' .selected = ${receiveTokenIn === 'request-body'}> Request Body </option>` : ''}
+                  <option value = 'header' .selected = ${receiveTokenIn === 'header'} > Authorization Header </option>
+                  <option value = 'request-body' .selected = ${receiveTokenIn === 'request-body'}> Request Body </option>
                 </select>`
               : ''
             }
@@ -483,7 +483,6 @@ export default function securitySchemeTemplate() {
                         v.flows[f],
                         (v.flows[f]['x-default-scopes'] || v['x-default-scopes']),
                         (v.flows[f]['x-receive-token-in'] || v['x-receive-token-in']),
-                        (v.flows[f]['x-receive-token-in-options'] || v['x-receive-token-in-options']),
                       ))}
                   </td>
                 </tr>

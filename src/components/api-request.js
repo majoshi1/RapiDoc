@@ -279,8 +279,7 @@ export default class ApiRequest extends LitElement {
         style="display:inline-block; min-width:24px; text-align:center"
         class="${this.allowTry === 'true' ? '' : 'inactive-link'}"
         data-example-type="${paramType === 'array' ? paramType : 'string'}"
-        data-example="${example.value && Array.isArray(example.value) ? example.value?.join('~|~') : (typeof example.value === 'object' ? JSON.stringify(example.value, null, 2) : example.value) || ''}"
-        title="${example.value && Array.isArray(example.value) ? example.value?.join('~|~') : (typeof example.value === 'object' ? JSON.stringify(example.value, null, 2) : example.value) || ''}"
+        data-example="${example.value && Array.isArray(example.value) ? example.value?.join('~|~') : example.value || ''}"
         @click="${(e) => {
           const inputEl = e.target.closest('table').querySelector(`[data-pname="${paramName}"]`);
           if (inputEl) {
@@ -454,7 +453,7 @@ export default class ApiRequest extends LitElement {
                             data-param-allow-reserved = "${paramAllowReserved}"
                             data-x-fill-example = "${param['x-fill-example'] || 'yes'}"
                             spellcheck = "false"
-                            .textContent="${param['x-fill-example'] === 'no' ? '' : live(this.fillRequestFieldsWithExample === 'true' ? (typeof example.exampleVal === 'object' ? JSON.stringify(example.exampleVal, null, 2) : example.exampleVal) : '')}"
+                            .textContent="${param['x-fill-example'] === 'no' ? '' : live(this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : '')}"
                             style = "resize:vertical; width:100%; height: ${'read focused'.includes(this.renderStyle) ? '180px' : '120px'};"
                             @input=${(e) => {
                               const requestPanelEl = this.getRequestPanel(e);
@@ -908,7 +907,7 @@ export default class ApiRequest extends LitElement {
                     data-example = "${Array.isArray(fieldExamples) ? fieldExamples.join('~|~') : fieldExamples}"
                     data-array = "true"
                     placeholder = "add-multiple &#x21a9;"
-                    .value = "${Array.isArray(fieldExamples) ? Array.isArray(fieldExamples[0]) ? fieldExamples[0] : fieldExamples : []}"
+                    .value = "${Array.isArray(fieldExamples) ? Array.isArray(fieldExamples[0]) ? fieldExamples[0] : [fieldExamples[0]] : [fieldExamples]}"
                   >
                   </tag-input>
                 `
@@ -1053,14 +1052,10 @@ export default class ApiRequest extends LitElement {
         ${this.responseIsBlob
           ? html`
             <div class="tab-content col" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};">
-              ${this.responseBlobType === 'image'
-                ? html`<img style="max-height:var(--resp-area-height, 400px); object-fit:contain;" class="mar-top-8" src="${this.responseBlobUrl}"></img>`
-                : ''
-              }  
               <button class="m-btn thin-border mar-top-8" style="width:135px" @click='${(e) => { downloadResource(this.responseBlobUrl, this.respContentDisposition, e); }}' part="btn btn-outline">
                 DOWNLOAD
               </button>
-              ${this.responseBlobType === 'view' || this.responseBlobType === 'image'
+              ${this.responseBlobType === 'view'
                 ? html`<button class="m-btn thin-border mar-top-8" style="width:135px"  @click='${(e) => { viewResource(this.responseBlobUrl, e); }}' part="btn btn-outline">VIEW (NEW TAB)</button>`
                 : ''
               }
@@ -1222,7 +1217,7 @@ export default class ApiRequest extends LitElement {
         const queryParam = new URLSearchParams();
         try {
           let queryParamObj = {};
-          const { paramSerializeStyle, paramSerializeExplode, pname } = el.dataset;
+          const { paramSerializeStyle, paramSerializeExplode } = el.dataset;
           queryParamObj = Object.assign(queryParamObj, JSON.parse(el.value.replace(/\s+/g, ' ')));
           if (el.dataset.paramAllowReserved === 'true') {
             queryParamsWithReservedCharsAllowed.push(el.dataset.pname);
@@ -1235,25 +1230,24 @@ export default class ApiRequest extends LitElement {
             }
           } else {
             for (const key in queryParamObj) {
-              const pKey = `${pname}[${key}]`;
               if (typeof queryParamObj[key] === 'object') {
                 if (Array.isArray(queryParamObj[key])) {
                   if (paramSerializeStyle === 'spaceDelimited') {
-                    queryParam.append(pKey, queryParamObj[key].join(' '));
+                    queryParam.append(key, queryParamObj[key].join(' '));
                   } else if (paramSerializeStyle === 'pipeDelimited') {
-                    queryParam.append(pKey, queryParamObj[key].join('|'));
+                    queryParam.append(key, queryParamObj[key].join('|'));
                   } else {
                     if (paramSerializeExplode === 'true') { // eslint-disable-line no-lonely-if
                       queryParamObj[key].forEach((v) => {
-                        queryParam.append(pKey, v);
+                        queryParam.append(key, v);
                       });
                     } else {
-                      queryParam.append(pKey, queryParamObj[key]);
+                      queryParam.append(key, queryParamObj[key]);
                     }
                   }
                 }
               } else {
-                queryParam.append(pKey, queryParamObj[key]);
+                queryParam.append(key, queryParamObj[key]);
               }
             }
           }
@@ -1465,21 +1459,6 @@ export default class ApiRequest extends LitElement {
       const startTime = performance.now();
       fetchResponse = await fetch(fetchRequest, { signal });
       const endTime = performance.now();
-      // Allow to modify response
-      let resolveModifiedResponse; // Create a promise that will be resolved from the event listener
-      const modifiedResponsePromise = new Promise((resolve) => {
-        resolveModifiedResponse = resolve;
-      });
-      this.dispatchEvent(new CustomEvent('fetched-try', {
-        bubbles: true,
-        composed: true,
-        detail: {
-          request: fetchRequest,
-          response: fetchResponse,
-          resolveModifiedResponse, // pass the resolver function
-        },
-      }));
-      fetchResponse = await modifiedResponsePromise; // Wait for the modified response
       responseClone = fetchResponse.clone(); // create a response clone to allow reading response body again (response.json, response.text etc)
       tryBtnEl.disabled = false;
       this.responseMessage = html`${fetchResponse.statusText ? `${fetchResponse.statusText}:${fetchResponse.status}` : fetchResponse.status} <div style="color:var(--light-fg)"> Took ${Math.round(endTime - startTime)} milliseconds </div>`;
@@ -1519,9 +1498,6 @@ export default class ApiRequest extends LitElement {
         } else if (/^font\/|tar$|zip$|7z$|rtf$|msword$|excel$|\/pdf$|\/octet-stream$|^application\/vnd\./.test(contentType)) {
           this.responseIsBlob = true;
           this.responseBlobType = 'download';
-        } else if (/^image/.test(contentType)) {
-          this.responseIsBlob = true;
-          this.responseBlobType = 'image';
         } else if (/^audio|^image|^video/.test(contentType)) {
           this.responseIsBlob = true;
           this.responseBlobType = 'view';

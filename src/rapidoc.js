@@ -99,7 +99,6 @@ export default class RapiDoc extends LitElement {
       allowSchemaDescriptionExpandToggle: { type: String, attribute: 'allow-schema-description-expand-toggle' },
       showComponents: { type: String, attribute: 'show-components' },
       pageDirection: { type: String, attribute: 'page-direction' },
-      scrollBehavior: { type: String, attribute: 'scroll-behavior' },
 
       // Main Colors and Font
       theme: { type: String },
@@ -512,7 +511,6 @@ export default class RapiDoc extends LitElement {
     if (!this.infoDescriptionHeadingsInNavBar || !'true, false,'.includes(`${this.infoDescriptionHeadingsInNavBar},`)) { this.infoDescriptionHeadingsInNavBar = 'false'; }
     if (!this.fetchCredentials || !'omit, same-origin, include,'.includes(`${this.fetchCredentials},`)) { this.fetchCredentials = ''; }
     if (!this.matchType || !'includes regex'.includes(this.matchType)) { this.matchType = 'includes'; }
-    if (!this.scrollBehavior || !'smooth, auto,'.includes(`${this.scrollBehavior},`)) { this.scrollBehavior = 'auto'; }
 
     if (!this.showAdvancedSearchDialog) { this.showAdvancedSearchDialog = false; }
 
@@ -862,7 +860,7 @@ export default class RapiDoc extends LitElement {
       window.setTimeout(() => {
         const gotoEl = this.shadowRoot.getElementById(tmpElementId);
         if (gotoEl) {
-          gotoEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
+          gotoEl.scrollIntoView({ behavior: 'auto', block: 'start' });
           if (this.updateRoute === 'true') {
             this.replaceHistoryState(tmpElementId);
           }
@@ -906,7 +904,7 @@ export default class RapiDoc extends LitElement {
           if (this.updateRoute === 'true') {
             this.replaceHistoryState(entry.target.id);
           }
-          newNavEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'center' });
+          newNavEl.scrollIntoView({ behavior: 'auto', block: 'center' });
           newNavEl.classList.add('active');
           newNavEl.part.add('section-navbar-active-item');
         }
@@ -927,7 +925,7 @@ export default class RapiDoc extends LitElement {
       if (e.target.getAttribute('href').startsWith('#')) {
         const gotoEl = this.shadowRoot.getElementById(e.target.getAttribute('href').replace('#', ''));
         if (gotoEl) {
-          gotoEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
+          gotoEl.scrollIntoView({ behavior: 'auto', block: 'start' });
         }
       }
     }
@@ -980,7 +978,7 @@ export default class RapiDoc extends LitElement {
       const contentEl = this.shadowRoot.getElementById(elementId);
       if (contentEl) {
         isValidElementId = true;
-        contentEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'start' });
+        contentEl.scrollIntoView({ behavior: 'auto', block: 'start' });
       } else {
         isValidElementId = false;
       }
@@ -1007,7 +1005,7 @@ export default class RapiDoc extends LitElement {
 
         if (newNavEl) {
           if (scrollNavItemToView) {
-            newNavEl.scrollIntoView({ behavior: this.scrollBehavior, block: 'center' });
+            newNavEl.scrollIntoView({ behavior: 'auto', block: 'center' });
           }
           await sleep(0);
           const oldNavEl = this.shadowRoot.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active, .operations.active');
